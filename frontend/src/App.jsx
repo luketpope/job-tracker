@@ -1,16 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import React, { useEffect } from 'react';
 
 function App() {
   const [count, setCount] = useState(0)
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     fetch('http://localhost:8000/')
       .then(res => res.json())
-      .then(data => console.log(data))
+      .then(data => setData(data))
       .catch(err => console.error('Error fetching backend:', err));
   }, []);
 
@@ -36,6 +36,12 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+
+      {data && (
+        <pre className="text-left bg-blue-400 p-4 rounded mt-4">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      )}
     </>
   )
 }

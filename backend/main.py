@@ -28,7 +28,7 @@ jobs_db: List[Job] = []
 
 @app.get("/")
 def read_root():
-    return {"message": "Job Tracker API running..."}
+    return {"message": jobs_db}
 
 @app.get("/jobs", response_model=List[Job])
 def get_jobs():
