@@ -1,0 +1,50 @@
+# ---- Python (backend) ----
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.db
+*.log
+.env
+.venv/
+venv/
+env/
+build/
+dist/
+
+# FastAPI auto-generated files
+*.pid
+
+# ---- VS Code / IDEs ----
+.vscode/
+.idea/
+*.swp
+
+# ---- React (frontend) ----
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.DS_Store
+
+# ---- System Files ----
+.DS_Store
+Thumbs.db
+
+# ---- macOS/Linux executables ----
+*.out
+*.o
+*.so
+
+# ---- Windows executables ----
+*.exe
+*.dll
+*.pdb
+
+# ---- Logs & Caches ----
+*.log
+*.cache
+*.bak
+
+# ---- Deployment files (optional) ----
+*.zip
+*.tar
+*.tgz
