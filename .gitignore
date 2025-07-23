@@ -44,7 +44,10 @@ Thumbs.db
 *.cache
 *.bak
 
-# ---- Deployment files (optional) ----
+# ---- Deployment files ----
 *.zip
 *.tar
 *.tgz
+
+# ---- Commands file ----
+commands.txt

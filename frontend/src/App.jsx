@@ -2,9 +2,17 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import React, { useEffect } from 'react';
 
 function App() {
   const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    fetch('http://localhost:8000/')
+      .then(res => res.json())
+      .then(data => console.log(data))
+      .catch(err => console.error('Error fetching backend:', err));
+  }, []);
 
   return (
     <>
