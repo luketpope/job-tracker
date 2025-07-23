@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-import openai
-openai.api_key = "api-key-1976"
+# import openai
+# openai.api_key = "api-key-1976"
 
 app = FastAPI()
 
