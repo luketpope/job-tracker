@@ -15,14 +15,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Job(BaseModel):
-    id: int
+class JobCreate(BaseModel):
     title: str
     company: str
     salary: int
     link: str
     status: str
     date_applied: str
+
+class Job(JobCreate):
+    id: int
 
 jobs_db: List[Job] = []
 
@@ -35,11 +37,25 @@ def get_jobs():
     return jobs_db
 
 @app.post("/jobs", response_model=Job)
-def create_job(job: Job):
-    if any(j.id == job.id for j in jobs_db):
+def create_job(job_data: JobCreate):
+
+    if any(j.id == id for j in jobs_db):
         raise HTTPException(status_code=400, detail="Job with this ID already exists.")
-    jobs_db.append(job)
-    return job
+    
+    # job = Job(
+    #     title=title,
+    #     company=company,
+    #     salary=salary,
+    #     link=link,
+    #     status=status,
+    #     date_applied=date_applied
+    # )
+    
+    next_id = max([j.id for j in jobs_db], default=0) + 1
+    new_job = Job(id=next_id, **job_data.dict())
+
+    jobs_db.append(new_job)
+    return new_job
 
 @app.put("/jobs/{id}", response_model=Job)
 def update_job(id: int, updated_job: Job):
