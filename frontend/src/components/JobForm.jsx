@@ -7,9 +7,11 @@ const defaultForm = {
   company: '',
   salary: '',
   link: '',
-  status: '',
+  status: 'Pending',
   date_applied: '',
 };
+
+const statusOptions = ['Pending', 'Interview', 'Rejected', 'Offer'];
 
 export default function JobForm({ onSuccess }) {
   const [formData, setFormData] = useState(defaultForm);
@@ -44,17 +46,55 @@ export default function JobForm({ onSuccess }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '15px', maxWidth: '400px', margin: 'auto' }}>
-      {Object.keys(defaultForm).map((key) => (
-        <input
-          key={key}
-          name={key}
-          type={key === 'salary' ? 'number' : 'text'}
-          placeholder={key.replace(/^\w/, (c) => c.toUpperCase()).replace('_', ' ')}
-          value={formData[key]}
-          onChange={handleChange}
-          required
-        />
-      ))}
+      <input
+        name="title"
+        type="text"
+        placeholder="Job Title"
+        value={formData.title}
+        onChange={handleChange}
+        required
+      />
+      <input
+        name="company"
+        type="text"
+        placeholder="Company"
+        value={formData.company}
+        onChange={handleChange}
+        required
+      />
+      <input
+        name="salary"
+        type="number"
+        placeholder="Salary"
+        value={formData.salary}
+        onChange={handleChange}
+        required
+      />
+      <input
+        name="link"
+        type="url"
+        placeholder="Job Link"
+        value={formData.link}
+        onChange={handleChange}
+        required
+      />
+      <select
+        name="status"
+        value={formData.status}
+        onChange={handleChange}
+        required
+      >
+        {statusOptions.map((status) => (
+          <option key={status} value={status}>{status}</option>
+        ))}
+      </select>
+      <input
+        name="date_applied"
+        type="date"
+        value={formData.date_applied}
+        onChange={handleChange}
+        required
+      />
       <button type="submit">Add Job</button>
     </form>
   );

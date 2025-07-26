@@ -6,7 +6,7 @@ export default function JobList({ jobs }) {
   if (!jobs.length) return <p>No jobs yet.</p>;
 
   return (
-    <div style={{ maxWidth: '600px', margin: 'auto' }}>
+    <div style={{ maxWidth: '400px', margin: 'auto' }}>
       {jobs.map((job) => (
         <JobCard key={job.id} job={job} />
       ))}

@@ -7,7 +7,7 @@ export default function CreateJob() {
   const navigate = useNavigate();
 
   const handleSuccess = () => {
-    navigate('/'); // Redirect to home after successful submission
+    navigate('/');
   };
 
   return (
