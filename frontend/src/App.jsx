@@ -3,6 +3,7 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home.jsx';
 import CreateJob from './pages/CreateJob.jsx';
+import UpdateJob from './pages/UpdateJob.jsx';
 
 function App() {
   const [jobs, setJobs] = useState([])
@@ -39,6 +40,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/create" element={<CreateJob />} />
+        <Route path="/update/:id" element={<UpdateJob />} />
       </Routes>
     </Router>
   )

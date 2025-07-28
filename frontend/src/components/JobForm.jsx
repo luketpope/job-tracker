@@ -1,57 +1,17 @@
-// src/components/JobList.jsx
-
-import { useState } from 'react';
-
-const defaultForm = {
-  title: '',
-  company: '',
-  salary: '',
-  link: '',
-  status: 'Pending',
-  date_applied: '',
-};
+// src/components/JobForm.jsx
 
 const statusOptions = ['Pending', 'Interview', 'Rejected', 'Offer'];
 
-export default function JobForm({ onSuccess }) {
-  const [formData, setFormData] = useState(defaultForm);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch('http://localhost:8000/jobs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        alert('Job added!');
-        setFormData(defaultForm);
-        onSuccess();
-      } else {
-        const error = await response.json();
-        alert('Error: ' + error.detail);
-      }
-    } catch (err) {
-      console.error('Submit error:', err);
-    }
-  };
-
+export default function JobForm({ formData, onChange, onSubmit, isEditing = false, setFormData }) {
+  
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '15px', maxWidth: '400px', margin: 'auto' }}>
+    <form onSubmit={onSubmit} style={{ display: 'grid', gap: '15px', maxWidth: '400px', margin: 'auto' }}>
       <input
         name="title"
         type="text"
         placeholder="Job Title"
         value={formData.title}
-        onChange={handleChange}
+        onChange={onChange}
         required
       />
       <input
@@ -59,7 +19,7 @@ export default function JobForm({ onSuccess }) {
         type="text"
         placeholder="Company"
         value={formData.company}
-        onChange={handleChange}
+        onChange={onChange}
         required
       />
       <input
@@ -67,7 +27,7 @@ export default function JobForm({ onSuccess }) {
         type="number"
         placeholder="Salary"
         value={formData.salary}
-        onChange={handleChange}
+        onChange={onChange}
         required
       />
       <input
@@ -75,13 +35,13 @@ export default function JobForm({ onSuccess }) {
         type="url"
         placeholder="Job Link"
         value={formData.link}
-        onChange={handleChange}
+        onChange={onChange}
         required
       />
       <select
         name="status"
         value={formData.status}
-        onChange={handleChange}
+        onChange={onChange}
         required
       >
         {statusOptions.map((status) => (
@@ -91,11 +51,27 @@ export default function JobForm({ onSuccess }) {
       <input
         name="date_applied"
         type="date"
+        placeholder="Date Applied"
         value={formData.date_applied}
-        onChange={handleChange}
+        onChange={onChange}
         required
       />
-      <button type="submit">Add Job</button>
+      <button type="submit">{isEditing ? 'Save Changes' : 'Add Job'}</button>
+      <button
+        type="button"
+        onClick={() =>
+          setFormData({
+            title: 'Frontend Developer',
+            company: 'OpenAI',
+            salary: 65000,
+            link: 'https://careers.openai.com',
+            status: 'Interview',
+            date_applied: new Date().toISOString().split('T')[0], // Today's date
+          })
+        }
+      >
+        Fill with Dummy Data
+      </button>
     </form>
   );
 }

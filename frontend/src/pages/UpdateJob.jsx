@@ -1,21 +1,20 @@
-// src/pages/CreateJob.jsx
+// src/pages/UpdateJob.jsx
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import JobForm from '../components/JobForm';
 
-const defaultForm = {
-  title: '',
-  company: '',
-  salary: '',
-  link: '',
-  status: 'Pending',
-  date_applied: '',
-};
-
-export default function CreateJob() {
-  const [formData, setFormData] = useState(defaultForm);
+export default function UpdateJob() {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [formData, setFormData] = useState(null);
+
+  useEffect(() => {
+    fetch(`http://localhost:8000/jobs/${id}`)
+      .then(res => res.json())
+      .then(data => setFormData(data))
+      .catch(err => console.error('Error fetching job:', err));
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,14 +23,14 @@ export default function CreateJob() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://localhost:8000/jobs', {
-      method: 'POST',
+
+    const response = await fetch(`http://localhost:8000/jobs/${id}`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     });
 
     if (response.ok) {
-      setFormData(defaultForm);
       navigate('/');
     } else {
       const error = await response.json();
@@ -39,15 +38,14 @@ export default function CreateJob() {
     }
   };
 
-  console.log(formData)
-
-  return (
+  return formData ? (
     <JobForm
       formData={formData}
       onChange={handleChange}
       onSubmit={handleSubmit}
-      setFormData={setFormData}
+      isEditing={true}
     />
+  ) : (
+    <p>Loading...</p>
   );
 }
-
