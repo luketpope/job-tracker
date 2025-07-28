@@ -49,5 +49,5 @@ Thumbs.db
 *.tar
 *.tgz
 
-# ---- Commands file ----
-commands.txt
+# ---- Note-taking files ----
+*.txt
