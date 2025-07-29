@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Response
+from fastapi import FastAPI, HTTPException, Depends, Response, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
@@ -53,8 +53,22 @@ def read_root():
     return {"message": jobs_db}
 
 @app.get("/jobs")
-def get_jobs(db: Session = Depends(get_db)):
-    return db.query(JobModel).all()
+def get_jobs(
+    status: str = Query(None),
+    company: str = Query(None),
+    db: Session = Depends(get_db)
+    ):
+
+    query = db.query(JobModel)
+
+    if status:
+        query = query.filter(JobModel.status == status)
+
+    if company:
+        query = query.filter(JobModel.company.ilike(f"%{company}%"))
+    
+    print(query.all())
+    return query.all()
 
 @app.get("/jobs/{job_id}", response_model=Job)
 def get_job(job_id: int, db: Session = Depends(get_db)):
