@@ -18,7 +18,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
+    <div className="bg-gray-50 text-gray-800 min-h-screen">
       <JobList jobs={jobs} />
     </div>
   );

@@ -42,12 +42,14 @@ export default function CreateJob() {
   console.log(formData)
 
   return (
-    <JobForm
-      formData={formData}
-      onChange={handleChange}
-      onSubmit={handleSubmit}
-      setFormData={setFormData}
-    />
+    <div className="bg-gray-50 text-gray-800 min-h-screen">
+      <JobForm
+        formData={formData}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        setFormData={setFormData}
+      />
+    </div>
   );
 }
 

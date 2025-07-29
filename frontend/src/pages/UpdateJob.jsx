@@ -39,13 +39,17 @@ export default function UpdateJob() {
   };
 
   return formData ? (
-    <JobForm
-      formData={formData}
-      onChange={handleChange}
-      onSubmit={handleSubmit}
-      isEditing={true}
-    />
+    <div className="bg-gray-50 text-gray-800 min-h-screen">
+      <JobForm
+        formData={formData}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        isEditing={true}
+      />
+    </div>
   ) : (
-    <p>Loading...</p>
+    <div className="bg-gray-50 text-gray-800 min-h-screen">
+      <p>Loading...</p>
+    </div>
   );
 }

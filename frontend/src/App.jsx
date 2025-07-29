@@ -21,20 +21,10 @@ function App() {
 
   return (
     <Router>
-      <nav style={{
-        position: 'sticky', // or 'fixed' if you want it always visible
-        top: 0,
-        width: '100%',
-        // background: '#eee',
-        padding: '1rem',
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '2rem',
-        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-        zIndex: 1000,
-      }}>
-        <Link to="/" style={{ marginRight: '1rem' }}>Home</Link>
-        <Link to="/create">Create Job</Link>
+      <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-emerald-600">JobTracker</h1>
+        <Link to="/" className="text-gray-700 hover:text-emerald-600 transition">Home</Link>
+        <Link to="/create" className="text-gray-700 hover:text-emerald-600 transition">Create Job</Link>
       </nav>
 
       <Routes>

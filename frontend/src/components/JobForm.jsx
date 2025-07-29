@@ -5,66 +5,105 @@ const statusOptions = ['Pending', 'Interview', 'Rejected', 'Offer'];
 export default function JobForm({ formData, onChange, onSubmit, isEditing = false, setFormData }) {
   
   return (
-    <form onSubmit={onSubmit} style={{ display: 'grid', gap: '15px', maxWidth: '400px', margin: 'auto' }}>
-      <input
-        name="title"
-        type="text"
-        placeholder="Job Title"
-        value={formData.title}
-        onChange={onChange}
-        required
-      />
-      <input
-        name="company"
-        type="text"
-        placeholder="Company"
-        value={formData.company}
-        onChange={onChange}
-        required
-      />
-      <input
-        name="salary"
-        type="number"
-        placeholder="Salary"
-        value={formData.salary}
-        onChange={onChange}
-        required
-      />
-      <input
-        name="link"
-        type="url"
-        placeholder="Job Link"
-        value={formData.link}
-        onChange={onChange}
-        required
-      />
-      <select
-        name="status"
-        value={formData.status}
-        onChange={onChange}
-        required
+    <form 
+      onSubmit={onSubmit} 
+      className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md"
+    >
+      <label className="block mb-4">
+        <span className="text-gray-700 font-medium mb-1 block">Job Title</span>
+        <input
+          type="text"
+          name="title"
+          value={formData.title}
+          onChange={onChange}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+          placeholder="Enter job title"
+        />
+      </label>
+
+      <label className="block mb-4">
+        <span className="text-gray-700 font-medium mb-1 block">Company</span>
+        <input
+          type="text"
+          name="company"
+          value={formData.company}
+          onChange={onChange}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+          placeholder="Enter company name"
+        />
+      </label>
+
+      <label className="block mb-4">
+        <span className="text-gray-700 font-medium mb-1 block">Salary (£)</span>
+        <input
+          type="number"
+          name="salary"
+          value={formData.salary}
+          onChange={onChange}
+          required
+          min="0"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+          placeholder="Enter salary"
+        />
+      </label>
+
+      <label className="block mb-4">
+        <span className="text-gray-700 font-medium mb-1 block">Job Link</span>
+        <input
+          type="url"
+          name="link"
+          value={formData.link}
+          onChange={onChange}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+          placeholder="https://example.com/job-posting"
+        />
+      </label>
+
+      <label className="block mb-4">
+        <span className="text-gray-700 font-medium mb-1 block">Status</span>
+        <select
+          name="status"
+          value={formData.status}
+          onChange={onChange}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+        >
+          <option value="" disabled hidden className="text-gray-400">Select status</option>
+          {statusOptions.map(status => (
+            <option key={status} value={status} className="text-gray-400">{status}</option>
+          ))}
+        </select>
+      </label>
+
+      <label className="block mb-6">
+        <span className="text-gray-700 font-medium mb-1 block">Date Applied</span>
+        <input
+          type="date"
+          name="date_applied"
+          value={formData.date_applied}
+          onChange={onChange}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+        />
+      </label>
+      <button
+        type="submit"
+        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-md shadow-md transition"
       >
-        {statusOptions.map((status) => (
-          <option key={status} value={status}>{status}</option>
-        ))}
-      </select>
-      <input
-        name="date_applied"
-        type="date"
-        placeholder="Date Applied"
-        value={formData.date_applied}
-        onChange={onChange}
-        required
-      />
-      <button type="submit">{isEditing ? 'Save Changes' : 'Add Job'}</button>
+        {isEditing ? 'Save Changes' : 'Add Job'}
+      </button>
+      <br/><br/>
       <button
         type="button"
         onClick={() =>
           setFormData({
-            title: 'Frontend Developer',
-            company: 'OpenAI',
-            salary: 65000,
-            link: 'https://careers.openai.com',
+            title: 'DevOps',
+            company: 'BAE Systems',
+            salary: 30000,
+            link: 'https://jobsearch.baesystems.com/job/devops-engineer-120493',
             status: 'Interview',
             date_applied: new Date().toISOString().split('T')[0], // Today's date
           })
