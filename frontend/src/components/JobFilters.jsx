@@ -6,7 +6,7 @@ export default function JobFilters({ filters, setFilters }) {
   };
 
   return (
-    <div className="py-2 flex flex-wrap gap-4 mb-6 justify-center">
+    <div className="py-2 flex flex-wrap gap-4 mb-1 justify-center">
       <input
         type="text"
         name="company"

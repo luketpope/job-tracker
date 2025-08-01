@@ -67,7 +67,7 @@ def get_jobs(
     if company:
         query = query.filter(JobModel.company.ilike(f"%{company}%"))
     
-    print(query.all())
+    
     return query.all()
 
 @app.get("/jobs/{job_id}", response_model=Job)

@@ -2,24 +2,9 @@
 import { useParams, useNavigate } from 'react-router-dom';
 
 
-export default function JobCard({ job }) {
+export default function JobCard({ job, onDelete }) {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this job?')) return;
-
-    const response = await fetch(`http://localhost:8000/jobs/${id}`, {
-      method: 'DELETE',
-    });
-
-    if (response.status === 204) {
-      navigate(0);
-    } else {
-      const error = await response.json();
-      alert('Failed to delete job: ' + (error.detail || 'Unknown error'));
-    }
-  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md pb-1 mb-6 max-w-xl mx-auto hover:shadow-lg transition-shadow duration-300">
@@ -61,7 +46,7 @@ export default function JobCard({ job }) {
         <div className="mt-4 space-x-2">
           <button
             className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition"
-            onClick={() => handleDelete(job.id)}
+            onClick={() => onDelete(job.id)}
           >
             Delete
           </button>
