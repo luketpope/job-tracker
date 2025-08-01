@@ -6,6 +6,7 @@ export default function UpdateJob({ jobs, calculateTotalXP, calculateLevel, calc
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
+  const token = localStorage.getItem("token");
 
   // Prevent the job being updated from double counting in XP
   const jobsExcludingCurrent = jobs.filter(job => job.id !== formData?.id);
@@ -27,7 +28,10 @@ export default function UpdateJob({ jobs, calculateTotalXP, calculateLevel, calc
 
     const response = await fetch(`http://localhost:8000/jobs/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}` 
+      },
       body: JSON.stringify(formData),
     });
 

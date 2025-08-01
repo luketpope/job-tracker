@@ -16,6 +16,7 @@ const defaultForm = {
 export default function CreateJob({ jobs, calculateTotalXP, calculateLevel, calculateLeftoverXP, maxXP }) {
   const [formData, setFormData] = useState(defaultForm);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,7 +27,10 @@ export default function CreateJob({ jobs, calculateTotalXP, calculateLevel, calc
     e.preventDefault();
     const response = await fetch('http://localhost:8000/jobs', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(formData),
     });
 
