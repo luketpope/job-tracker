@@ -11,6 +11,8 @@ env/
 build/
 dist/
 
+database.py
+
 # FastAPI auto-generated files
 *.pid
 
