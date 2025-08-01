@@ -13,7 +13,7 @@ const defaultForm = {
   date_applied: '',
 };
 
-export default function CreateJob() {
+export default function CreateJob({ jobs, calculateTotalXP, calculateLevel, calculateLeftoverXP, maxXP }) {
   const [formData, setFormData] = useState(defaultForm);
   const navigate = useNavigate();
 
@@ -33,13 +33,12 @@ export default function CreateJob() {
     if (response.ok) {
       setFormData(defaultForm);
       navigate('/');
+      window.location.reload();
     } else {
       const error = await response.json();
       alert('Error: ' + error.detail);
     }
   };
-
-  console.log(formData)
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen">
@@ -48,6 +47,11 @@ export default function CreateJob() {
         onChange={handleChange}
         onSubmit={handleSubmit}
         setFormData={setFormData}
+        calculateTotalXP={calculateTotalXP}
+        calculateLevel={calculateLevel}
+        calculateLeftoverXP={calculateLeftoverXP}
+        maxXP={maxXP}
+        jobs={jobs}
       />
     </div>
   );

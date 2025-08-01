@@ -1,13 +1,14 @@
-// src/pages/UpdateJob.jsx
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import JobForm from '../components/JobForm';
 
-export default function UpdateJob() {
+export default function UpdateJob({ jobs, calculateTotalXP, calculateLevel, calculateLeftoverXP, maxXP }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
+
+  // Prevent the job being updated from double counting in XP
+  const jobsExcludingCurrent = jobs.filter(job => job.id !== formData?.id);
 
   useEffect(() => {
     fetch(`http://localhost:8000/jobs/${id}`)
@@ -32,6 +33,7 @@ export default function UpdateJob() {
 
     if (response.ok) {
       navigate('/');
+      window.location.reload();
     } else {
       const error = await response.json();
       alert('Error: ' + error.detail);
@@ -45,11 +47,17 @@ export default function UpdateJob() {
         onChange={handleChange}
         onSubmit={handleSubmit}
         isEditing={true}
+        setFormData={setFormData}
+        calculateTotalXP={calculateTotalXP}
+        calculateLevel={calculateLevel}
+        calculateLeftoverXP={calculateLeftoverXP}
+        maxXP={maxXP}
+        jobs={jobsExcludingCurrent}
       />
     </div>
   ) : (
-    <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen">
-      <p>Loading...</p>
+    <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex items-center justify-center">
+      <p className="text-lg font-mono animate-pulse">Loading job data...</p>
     </div>
   );
 }
