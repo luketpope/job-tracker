@@ -1,8 +1,21 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import { useEffect, useState } from "react";
 
 export default function GameNavbar({ xp = 120, level = 5, maxXP = 200 }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
   const xpPercent = Math.min(100, (xp / maxXP) * 100);
+  
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("token"));
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    navigate("/login");
+  }
 
   return (
     <nav className="shadow-lg px-6 py-4 flex justify-between items-center border-b-4
@@ -27,20 +40,37 @@ export default function GameNavbar({ xp = 120, level = 5, maxXP = 200 }) {
 
       {/* Middle: Nav Links */}
       <div className="flex gap-6 font-mono text-lg">
-        {['Dashboard', 'Create Job'].map((text) => (
-          <Link
-            key={text}
-            to={text === 'Home' ? '/' : '/create'}
-            className="relative text-emerald-700 hover:text-emerald-900 transition-all duration-300
-              after:absolute after:-bottom-1 after:left-0 after:h-1 after:w-full after:origin-bottom-left
-              after:transition-transform after:scale-x-0 after:bg-emerald-600
-              hover:after:scale-x-100
-              dark:text-emerald-300 dark:hover:text-emerald-50 dark:after:bg-emerald-400
-            "
-          >
-            {text}
-          </Link>
-        ))}
+        { isLoggedIn ? (
+          ['Dashboard', 'Create Job'].map((text) => (
+            <Link
+              key={text}
+              to={text === 'Dashboard' ? '/' : '/create'}
+              className="relative text-emerald-700 hover:text-emerald-900 transition-all duration-300
+                after:absolute after:-bottom-1 after:left-0 after:h-1 after:w-full after:origin-bottom-left
+                after:transition-transform after:scale-x-0 after:bg-emerald-600
+                hover:after:scale-x-100
+                dark:text-emerald-300 dark:hover:text-emerald-50 dark:after:bg-emerald-400
+              "
+            >
+              {text}
+            </Link>
+          ))
+        ) : (
+          ['Login', 'Signup'].map((text) => (
+            <Link
+              key={text}
+              to={text.toLowerCase()}
+              className="relative text-emerald-700 hover:text-emerald-900 transition-all duration-300
+                after:absolute after:-bottom-1 after:left-0 after:h-1 after:w-full after:origin-bottom-left
+                after:transition-transform after:scale-x-0 after:bg-emerald-600
+                hover:after:scale-x-100
+                dark:text-emerald-300 dark:hover:text-emerald-50 dark:after:bg-emerald-400
+              "
+            >
+              {text}
+            </Link>
+          ))
+        )}
       </div>
 
       {/* Right side: XP bar + Theme Toggle */}
@@ -67,6 +97,14 @@ export default function GameNavbar({ xp = 120, level = 5, maxXP = 200 }) {
         </div>
 
         <ThemeToggle />
+        {isLoggedIn && (
+        <button
+          onClick={handleLogout}
+          className="ml-4 text-sm bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition dark:bg-red-600 dark:hover:bg-red-700"
+        >
+          Logout
+        </button>
+        )}
       </div>
     </nav>
   );

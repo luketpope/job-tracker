@@ -15,7 +15,12 @@ export default function JobList() {
     if (filters.status) query.append('status', filters.status);
     if (filters.company) query.append('company', filters.company);
 
-    fetch(`http://localhost:8000/jobs?${query.toString()}`)
+    const token = localStorage.getItem('token');
+      fetch(`http://localhost:8000/jobs?${query.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      })
       .then(res => res.json())
       .then(data => setJobs(data))
       .catch(err => console.error('Error fetching jobs:', err));

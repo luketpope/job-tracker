@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Home from './pages/Home.jsx';
+import Dashboard from './pages/Dashboard.jsx';
 import CreateJob from './pages/CreateJob.jsx';
 import UpdateJob from './pages/UpdateJob.jsx';
 import ThemeToggle from './components/ThemeToggle.jsx';
 // import Navbar from './components/NavBar.jsx';
 import GameNavbar from './components/GameNavbar.jsx';
+import Signup from './pages/Signup.jsx';
+import Login from './pages/Login.jsx';
 
 // XP values for each stage
 const statusXP = {
@@ -31,14 +33,25 @@ const calculateLevel = (xp) => Math.floor(xp / XPPerLevel) + 1;
 const calculateLeftoverXP = (xp, level) => xp - ((level - 1) * XPPerLevel);
 
 function App() {
-  const [jobs, setJobs] = useState([])
+  const [jobs, setJobs] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const fetchJobs = () => {
-    fetch('http://localhost:8000/jobs')
-      .then(res => res.json())
+    const token = localStorage.getItem('token');
+    fetch('http://localhost:8000/jobs', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => setJobs(data))
       .catch(err => console.error('Error fetching backend:', err));
-  }
+};
 
   const totalXP = calculateTotalXP(jobs);
   const level = calculateLevel(totalXP);
@@ -48,16 +61,51 @@ function App() {
   // console.log(leftoverXP);
 
   useEffect(() => {
-    fetchJobs();
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
   }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    fetchJobs();
+  }, [isLoggedIn]);
 
   return (
     <Router>
+
       <GameNavbar xp={leftoverXP} level={level} maxXP={XPPerLevel} />
       {/* <Navbar /> */}
 
       <Routes>
-        <Route path="/" element={<Home />} />
+        {isLoggedIn ? (
+          <>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/create" element={
+            <CreateJob 
+              jobs={jobs}
+              calculateTotalXP={calculateTotalXP}
+              calculateLevel={calculateLevel}
+              calculateLeftoverXP={calculateLeftoverXP}
+              maxXP={XPPerLevel}
+            />} />
+          <Route path="/update/:id" element={
+            <UpdateJob 
+              jobs={jobs}
+              calculateTotalXP={calculateTotalXP}
+              calculateLevel={calculateLevel}
+              calculateLeftoverXP={calculateLeftoverXP}
+              maxXP={XPPerLevel}
+            />
+          } />
+          </>
+        ) : (
+          <>
+            <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="*" element={<Login />} />
+          </>
+        )}
+        {/* <Route path="/" element={<Home />} />
         <Route path="/create" element={
           <CreateJob 
             jobs={jobs}
@@ -76,6 +124,8 @@ function App() {
             maxXP={XPPerLevel}
           />
         } />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} /> */}
       </Routes>
     </Router>
   )
