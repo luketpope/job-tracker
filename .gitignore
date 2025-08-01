@@ -12,6 +12,7 @@ build/
 dist/
 
 database.py
+reset_db.py
 
 # FastAPI auto-generated files
 *.pid
