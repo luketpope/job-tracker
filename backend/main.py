@@ -9,23 +9,18 @@ from typing import List
 # JobModel is used to input information to database
 from datetime import date
 from sqlalchemy.orm import Session
-from dotenv import load_dotenv
-import os
 
 from models import Base, Job as JobModel, User
 from database import engine, SessionLocal
 from schemas import UserCreate
 from auth import hash_password, verify_password
-from config import create_access_token
+from config import create_access_token, SECRET_KEY, ALGORITHM
 from jose import JWTError, jwt
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
-
-load_dotenv()
-SECRET_KEY = os.get_env("SECRET_KEY")
 
 origins = [
     "http://localhost:5173",
@@ -46,6 +41,18 @@ def get_db():
         yield db
     finally:
         db.close()
+
+# Class to handle user input from frontend
+class JobCreate(BaseModel):
+    title: str
+    company: str
+    salary: float
+    link: str
+    status: str
+    date_applied: date
+
+class Job(JobCreate):
+    id: int
 
 @app.post("/signup")
 def signup(user: UserCreate, db: Session = Depends(get_db)):
@@ -80,53 +87,33 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise HTTPException(status_code=404)
     return user
 
-
-
-# Class to handle user input from frontend
-class JobCreate(BaseModel):
-    title: str
-    company: str
-    salary: float
-    link: str
-    status: str
-    date_applied: date
-
-class Job(JobCreate):
-    id: int
-
-jobs_db: List[Job] = []
+@app.get("/me")
+def read_users_me(current_user: User = Depends(get_current_user)):
+    return current_user
 
 @app.get("/")
-def read_root():
-    return {"message": jobs_db}
+def read_root(db: Session = Depends(get_db)):
+    return {"message": db.query(JobModel).all()}
 
 @app.get("/jobs")
-def get_jobs(
-    status: str = Query(None),
-    company: str = Query(None),
-    db: Session = Depends(get_db)
-    ):
-
-    query = db.query(JobModel)
-
+def get_jobs(status: str = Query(None), company: str = Query(None), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(JobModel).filter(JobModel.owner_id == current_user.id)
     if status:
         query = query.filter(JobModel.status == status)
-
     if company:
         query = query.filter(JobModel.company.ilike(f"%{company}%"))
-    
-    
     return query.all()
 
 @app.get("/jobs/{job_id}", response_model=Job)
-def get_job(job_id: int, db: Session = Depends(get_db)):
-    job = db.query(JobModel).filter(JobModel.id == job_id).first()
+def get_job(job_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    jobs = db.query(JobModel).filter(JobModel.owner_id == current_user.id)
+    job = jobs.filter(JobModel.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     return job
 
 @app.post("/jobs", response_model=Job)
-def create_job(job: JobCreate, db: Session = Depends(get_db)):
+def create_job(job: JobCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
 
     # if any(j.id == id for j in jobs_db):
     #     raise HTTPException(status_code=400, detail="Job with this ID already exists.")
@@ -145,7 +132,7 @@ def create_job(job: JobCreate, db: Session = Depends(get_db)):
 
     # jobs_db.append(new_job)
     
-    job_db = JobModel(**job.dict())
+    job_db = JobModel(**job.dict(), owner_id=current_user.id)
     db.add(job_db)
     db.commit()
     db.refresh(job_db)
@@ -153,13 +140,14 @@ def create_job(job: JobCreate, db: Session = Depends(get_db)):
     return job_db
 
 @app.put("/jobs/{job_id}", response_model=Job)
-def update_job(job_id: int, updated_job: Job, db: Session = Depends(get_db)):
+def update_job(job_id: int, updated_job: Job, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # for i, job in enumerate(jobs_db):
     #     if job.id == id:
     #         jobs_db[i] = updated_job
     #         return updated_job
     # raise HTTPException(status_code=404, detail="Job not found.")
-    job = db.query(JobModel).filter(JobModel.id == job_id).first()
+    jobs = db.query(JobModel).filter(JobModel.owner_id == current_user.id)
+    job = jobs.filter(JobModel.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
@@ -172,13 +160,14 @@ def update_job(job_id: int, updated_job: Job, db: Session = Depends(get_db)):
     return job
 
 @app.delete("/jobs/{job_id}")
-def delete_job(job_id: int, db: Session = Depends(get_db)):
+def delete_job(job_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
 #     for i, job in enumerate(jobs_db):
 #         if job.id == id:
 #             del jobs_db[i]
 #             return {"message": f"Job with ID {id} deleted."}
 #     raise HTTPException(status_code=404, detail="Job not found.")
-    job = db.query(JobModel).filter(JobModel.id == job_id).first()
+    jobs = db.query(JobModel).filter(JobModel.owner_id == current_user.id)
+    job = jobs.filter(JobModel.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
