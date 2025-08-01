@@ -1,14 +1,52 @@
-// src/components/JobForm.jsx
-
 const statusOptions = ['Pending', 'Interview', 'Rejected', 'Offer'];
 
-export default function JobForm({ formData, onChange, onSubmit, isEditing = false, setFormData }) {
-  
+// XP values same as your job card
+function getXP(status) {
+  switch (status) {
+    case 'Pending': return 10;
+    case 'Interview': return 25;
+    case 'Offer': return 50;
+    case 'Rejected': return 0;
+    default: return 0;
+  }
+}
+
+export default function JobForm({ formData, onChange, onSubmit, isEditing = false, setFormData, calculateTotalXP, calculateLevel, calculateLeftoverXP, maxXP, jobs }) {
+  const currentXP = getXP(formData.status);
+  const totalXP = calculateTotalXP(jobs);
+  const newXP = totalXP + currentXP;
+  console.log(totalXP + currentXP);
+  const level = calculateLevel(newXP);
+  const leftoverXP = calculateLeftoverXP(newXP, level);
+  const xpPercent = Math.min(100, (leftoverXP / maxXP) * 100);
+
   return (
-    <form 
-      onSubmit={onSubmit} 
-      className="max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
+    <form
+      onSubmit={onSubmit}
+      className="max-w-md mx-auto bg-white dark:bg-gray-900 p-6 rounded-lg shadow-xl border-4 border-emerald-400 dark:border-emerald-600"
     >
+      {/* XP and Level Display */}
+      <div className="mb-6 p-4 rounded-md bg-emerald-50 dark:bg-emerald-900 border border-emerald-300 dark:border-emerald-700 select-none">
+        <div className="flex justify-between items-center mb-1 font-mono text-sm text-emerald-700 dark:text-emerald-300 font-semibold">
+          <span>XP for status "{formData.status || 'None'}":</span>
+          <span>{currentXP} XP</span>
+        </div>
+        <br/>
+        <div className="flex justify-between items-center mb-1 font-mono text-sm text-emerald-700 dark:text-emerald-300 font-semibold">
+          Projected XP:
+        </div>
+        <div className="w-full h-4 bg-emerald-200 dark:bg-emerald-800 rounded-full overflow-hidden border border-emerald-300 dark:border-emerald-700 shadow-inner">
+          <div
+            className="h-full bg-emerald-400 dark:bg-emerald-500 transition-all duration-500"
+            style={{ width: `${xpPercent}%` }}
+          />
+        </div>
+        <div className="mt-2 text-right font-mono font-semibold text-emerald-600 dark:text-emerald-400">
+          Level {level}
+        </div>
+      </div>
+
+      {/* Form Fields */}
       <label className="block mb-4">
         <span className="text-gray-700 dark:text-gray-200 font-medium mb-1 block">Job Title</span>
         <input
@@ -116,6 +154,5 @@ export default function JobForm({ formData, onChange, onSubmit, isEditing = fals
         Fill with Dummy Data
       </button>
     </form>
-
   );
 }
