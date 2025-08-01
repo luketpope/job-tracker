@@ -27,7 +27,7 @@ export default function GameNavbar({ xp = 120, level = 5, maxXP = 200 }) {
 
       {/* Middle: Nav Links */}
       <div className="flex gap-6 font-mono text-lg">
-        {['Home', 'Create Job'].map((text) => (
+        {['Dashboard', 'Create Job'].map((text) => (
           <Link
             key={text}
             to={text === 'Home' ? '/' : '/create'}

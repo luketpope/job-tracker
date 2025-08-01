@@ -48,7 +48,7 @@ export default function JobList() {
     ) : (
       <div
         className="
-          grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6
+          flex flex-wrap gap-4 justify-center
           bg-gray-50 dark:bg-gray-900
           p-4 rounded-lg
           shadow-md dark:shadow-lg
