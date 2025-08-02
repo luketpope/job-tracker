@@ -13,7 +13,7 @@ const defaultForm = {
   date_applied: '',
 };
 
-export default function CreateJob({ jobs, calculateTotalXP, calculateLevel, calculateLeftoverXP, maxXP }) {
+export default function CreateJob({ jobs, totalXP, calculateLevel, calculateLeftoverXP, maxXP }) {
   const [formData, setFormData] = useState(defaultForm);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -51,7 +51,7 @@ export default function CreateJob({ jobs, calculateTotalXP, calculateLevel, calc
         onChange={handleChange}
         onSubmit={handleSubmit}
         setFormData={setFormData}
-        calculateTotalXP={calculateTotalXP}
+        totalXP={totalXP}
         calculateLevel={calculateLevel}
         calculateLeftoverXP={calculateLeftoverXP}
         maxXP={maxXP}

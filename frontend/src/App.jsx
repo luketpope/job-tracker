@@ -35,13 +35,14 @@ const calculateLeftoverXP = (xp, level) => xp - ((level - 1) * XPPerLevel);
 function App() {
   const [jobs, setJobs] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [totalXP, setTotalXP] = useState(0);
 
   const fetchJobs = () => {
     const token = localStorage.getItem('token');
     fetch('http://localhost:8000/jobs', {
       headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        Authorization: `Bearer ${token}`
+      }
     })
       .then(res => {
         if (!res.ok) {
@@ -50,15 +51,25 @@ function App() {
         return res.json();
       })
       .then(data => setJobs(data))
-      .catch(err => console.error('Error fetching backend:', err));
-};
+      .catch(err => console.error('Error fetching jobs:', err));
+  };
 
-  const totalXP = calculateTotalXP(jobs);
-  const level = calculateLevel(totalXP);
-  const leftoverXP = calculateLeftoverXP(totalXP, level);
-  // console.log(totalXP);
-  // console.log(level);
-  // console.log(leftoverXP);
+  const fetchUserXP = async () => {
+    const token = localStorage.getItem('token');
+    fetch('http://localhost:8000/me/xp', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => setTotalXP(data.xp))
+      .catch(err => console.error('Error fetching xp:', err))
+  }
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -68,7 +79,14 @@ function App() {
   useEffect(() => {
     if (!isLoggedIn) return;
     fetchJobs();
+    fetchUserXP();
   }, [isLoggedIn]);
+
+  const level = calculateLevel(totalXP);
+  const leftoverXP = calculateLeftoverXP(totalXP, level);
+  // console.log(totalXP);
+  // console.log(level);
+  // console.log(leftoverXP);
 
   return (
     <Router>
@@ -83,15 +101,16 @@ function App() {
           <Route path="/create" element={
             <CreateJob 
               jobs={jobs}
-              calculateTotalXP={calculateTotalXP}
+              totalXP={totalXP}
               calculateLevel={calculateLevel}
               calculateLeftoverXP={calculateLeftoverXP}
               maxXP={XPPerLevel}
-            />} />
+            />
+          } />
           <Route path="/update/:id" element={
             <UpdateJob 
               jobs={jobs}
-              calculateTotalXP={calculateTotalXP}
+              totalXP={totalXP}
               calculateLevel={calculateLevel}
               calculateLeftoverXP={calculateLeftoverXP}
               maxXP={XPPerLevel}

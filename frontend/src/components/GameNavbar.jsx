@@ -14,7 +14,8 @@ export default function GameNavbar({ xp = 120, level = 5, maxXP = 200 }) {
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    navigate("/login");
+    window.location.reload();
+    navigate('/login');
   }
 
   return (
@@ -30,12 +31,14 @@ export default function GameNavbar({ xp = 120, level = 5, maxXP = 200 }) {
         ">
           JobTracker
         </h1>
+        {isLoggedIn && (
         <div className="px-2 py-1 rounded-md font-mono text-sm drop-shadow-md select-none
-          bg-emerald-600 text-white
-          dark:bg-emerald-600 dark:text-gray-100
-        ">
-          Lv. {level}
+            bg-emerald-600 text-white
+            dark:bg-emerald-600 dark:text-gray-100
+          ">
+            Lv. {level}
         </div>
+        )}
       </div>
 
       {/* Middle: Nav Links */}
@@ -75,26 +78,28 @@ export default function GameNavbar({ xp = 120, level = 5, maxXP = 200 }) {
 
       {/* Right side: XP bar + Theme Toggle */}
       <div className="flex items-center gap-6">
-        <div className="flex flex-col items-end mr-4 select-none">
-          <span className="text-xs font-mono tracking-wide
-            text-emerald-700
-            dark:text-emerald-200
-          ">
-            XP: {xp} / {maxXP}
-          </span>
-          <div className="w-32 h-3 rounded-full overflow-hidden border-2 shadow-inner
-            bg-emerald-100 border-emerald-600
-            dark:bg-emerald-900 dark:border-emerald-500
-          ">
-            <div
-              className="h-full transition-all duration-500
-                bg-emerald-600
-                dark:bg-emerald-400
-              "
-              style={{ width: `${xpPercent}%` }}
-            />
+        {isLoggedIn && (
+          <div className="flex flex-col items-end mr-4 select-none">
+            <span className="text-xs font-mono tracking-wide
+              text-emerald-700
+              dark:text-emerald-200
+            ">
+              XP: {xp} / {maxXP}
+            </span>
+            <div className="w-32 h-3 rounded-full overflow-hidden border-2 shadow-inner
+              bg-emerald-100 border-emerald-600
+              dark:bg-emerald-900 dark:border-emerald-500
+            ">
+              <div
+                className="h-full transition-all duration-500
+                  bg-emerald-600
+                  dark:bg-emerald-400
+                "
+                style={{ width: `${xpPercent}%` }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <ThemeToggle />
         {isLoggedIn && (

@@ -21,7 +21,6 @@ export default function Signup() {
         throw new Error(err.detail || "Signup failed");
       }
 
-      alert("Signup successful! Please log in.");
       navigate('/login')
     } catch (err) {
       setErrorMsg(err.message);

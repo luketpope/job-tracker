@@ -11,11 +11,11 @@ function getXP(status) {
   }
 }
 
-export default function JobForm({ formData, onChange, onSubmit, isEditing = false, setFormData, calculateTotalXP, calculateLevel, calculateLeftoverXP, maxXP, jobs }) {
+export default function JobForm({ formData, onChange, onSubmit, isEditing = false, setFormData, totalXP, calculateLevel, calculateLeftoverXP, maxXP, jobs, originalStatus=null }) {
+
   const currentXP = getXP(formData.status);
-  const totalXP = calculateTotalXP(jobs);
-  const newXP = totalXP + currentXP;
-  console.log(totalXP + currentXP);
+  const oldXP = isEditing ? getXP(originalStatus) : 0;
+  const newXP = totalXP - oldXP + currentXP;
   const level = calculateLevel(newXP);
   const leftoverXP = calculateLeftoverXP(newXP, level);
   const xpPercent = Math.min(100, (leftoverXP / maxXP) * 100);

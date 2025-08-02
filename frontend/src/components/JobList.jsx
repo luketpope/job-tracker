@@ -28,19 +28,24 @@ export default function JobList() {
 
   // Function for deleting job listings
   const onDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this job?')) return;
+  if (!window.confirm('Are you sure you want to delete this job?')) return;
 
-    const response = await fetch(`http://localhost:8000/jobs/${id}`, {
-      method: 'DELETE',
-    });
+  const token = localStorage.getItem("token");
 
-    if (response.status === 204) {
-      navigate(0);
-    } else {
-      const error = await response.json();
-      alert('Failed to delete job: ' + (error.detail || 'Unknown error'));
-    }
-  };
+  const response = await fetch(`http://localhost:8000/jobs/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 204) {
+    navigate(0);
+  } else {
+    const error = await response.json();
+    alert('Failed to delete job: ' + (error.detail || 'Unknown error'));
+  }
+};
 
   return (
   <div className="px-4">
