@@ -22,3 +22,4 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     jobs = relationship("Job", back_populates="owner")
+    xp = Column(Integer, default=0)

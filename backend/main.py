@@ -134,6 +134,10 @@ def create_job(job: JobCreate, db: Session = Depends(get_db), current_user: User
     
     job_db = JobModel(**job.dict(), owner_id=current_user.id)
     db.add(job_db)
+    
+    xp_gain = calculate_xp_for_status(job.status)
+    current_user.xp += xp_gain
+
     db.commit()
     db.refresh(job_db)
 
@@ -150,6 +154,11 @@ def update_job(job_id: int, updated_job: Job, db: Session = Depends(get_db), cur
     job = jobs.filter(JobModel.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
+    
+    old_xp = calculate_xp_for_status(job.status)
+    new_xp = calculate_xp_for_status(updated_job.status)
+    xp_gain = new_xp - old_xp
+    current_user.xp += xp_gain
     
     for key, value in updated_job.__dict__.items():
         if key != "_sa_instance_state":
@@ -171,6 +180,21 @@ def delete_job(job_id: int, db: Session = Depends(get_db), current_user: User = 
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
+    xp_loss = calculate_xp_for_status(job.status)
+    current_user.xp -= xp_loss
+    
     db.delete(job)
     db.commit()
     return Response(status_code=204)
+
+def calculate_xp_for_status(status: str) -> int:
+    return {
+        "Pending": 10,
+        "Interview": 25,
+        "Offer": 50,
+        "Rejected": 0
+    }.get(status, 0)
+
+@app.get("/me/xp")
+def get_user_xp(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return {"xp": current_user.xp}
