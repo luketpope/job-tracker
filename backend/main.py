@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, Response, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from uuid import uuid4
 
 from pydantic import BaseModel
@@ -58,6 +59,11 @@ class Job(JobCreate):
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Max file size for image uploads
+MAX_FILE_SIZE = 2 * 1024 * 1024 # 2 MB
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 @app.post("/signup")
 def signup(user: UserCreate, db: Session = Depends(get_db)):
@@ -219,12 +225,19 @@ def calculate_xp_for_status(status: str) -> int:
 def get_user_xp(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return {"xp": current_user.xp}
 
+async def validate_file_size(file: UploadFile):
+    contents = await file.read()
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="File too large")
+    await file.seek(0)  # Reset file pointer for later use
+    return file
+
 @app.post("/me/profile-picture")
-def upload_profile_picture(file: UploadFile = File(...), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def upload_profile_picture(file: UploadFile = Depends(validate_file_size), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
     
-    filename = f"{uuid4().hex}_{file.filename}"
+    filename = f"{uuid4().hex}_{os.path.splitext(file.filename)[1]}"
     file_path = os.path.join(UPLOAD_DIR, filename)
 
     with open(file_path, "wb") as buffer:
