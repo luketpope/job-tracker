@@ -23,3 +23,4 @@ class User(Base):
     hashed_password = Column(String)
     jobs = relationship("Job", back_populates="owner")
     xp = Column(Integer, default=0)
+    profile_picture = Column(String, nullable=True)

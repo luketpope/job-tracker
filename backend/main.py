@@ -1,7 +1,8 @@
-from fastapi import FastAPI, HTTPException, Depends, Response, Query
+from fastapi import FastAPI, HTTPException, Depends, Response, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi import Security
+from fastapi.responses import FileResponse
+from uuid import uuid4
 
 from pydantic import BaseModel
 from typing import List
@@ -12,10 +13,11 @@ from sqlalchemy.orm import Session
 
 from models import Base, Job as JobModel, User
 from database import engine, SessionLocal
-from schemas import UserCreate
+from schemas import UserCreate, UserUpdate, PassUpdate
 from auth import hash_password, verify_password
 from config import create_access_token, SECRET_KEY, ALGORITHM
 from jose import JWTError, jwt
+import os
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 app = FastAPI()
@@ -54,6 +56,9 @@ class JobCreate(BaseModel):
 class Job(JobCreate):
     id: int
 
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 @app.post("/signup")
 def signup(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == user.username).first()
@@ -91,9 +96,24 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
 
+@app.put("/me/change-username")
+def change_username(data: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    current_user.username = data.username
+    db.commit()
+    db.refresh(current_user)
+    return {"msg": "Profile updated"}
+
+@app.post("/me/change-password")
+def change_password(data: PassUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if not verify_password(data.old_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Old password incorrect")
+    current_user.hashed_password = hash_password(data.new_password)
+    db.commit()
+    return {"msg": "Password changed successfully"}
+
 @app.get("/")
 def read_root(db: Session = Depends(get_db)):
-    return {"message": db.query(JobModel).all()}
+    return {"message": db.query(User).all()}
 
 @app.get("/jobs")
 def get_jobs(status: str = Query(None), company: str = Query(None), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -198,3 +218,28 @@ def calculate_xp_for_status(status: str) -> int:
 @app.get("/me/xp")
 def get_user_xp(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return {"xp": current_user.xp}
+
+@app.post("/me/profile-picture")
+def upload_profile_picture(file: UploadFile = File(...), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    
+    filename = f"{uuid4().hex}_{file.filename}"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+
+    with open(file_path, "wb") as buffer:
+        buffer.write(file.file.read())
+
+    current_user.profile_picture = filename
+    db.commit()
+
+    return {"message": "Uploaded successfully", "url": f"/profile-pictures/{filename}"}
+
+@app.get("/profile-pictures/{filename}")
+def get_profile_picture(filename: str):
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
+    raise HTTPException(status_code=404, detail="Image not found")
+
+# CSS ON PROFILE UPLOAD, GAMIFY PROFILE PIC BORDER, FURTHER INCORPORATE THINGS IN PROFILE PAGE
