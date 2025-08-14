@@ -9,6 +9,7 @@ import ThemeToggle from './components/ThemeToggle.jsx';
 import GameNavbar from './components/GameNavbar.jsx';
 import Signup from './pages/Signup.jsx';
 import Login from './pages/Login.jsx';
+import Profile from './pages/Profile.jsx';
 
 // XP values for each stage
 const statusXP = {
@@ -113,6 +114,14 @@ function App() {
               totalXP={totalXP}
               calculateLevel={calculateLevel}
               calculateLeftoverXP={calculateLeftoverXP}
+              maxXP={XPPerLevel}
+            />
+          } />
+          <Route path="/profile" element={
+            <Profile token={localStorage.getItem("token")} 
+              jobs={jobs}
+              xp={leftoverXP}
+              level={level}
               maxXP={XPPerLevel}
             />
           } />
