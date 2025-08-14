@@ -26,15 +26,15 @@ Base.metadata.create_all(bind=engine)
 
 origins = [
     "http://localhost:5173",
-    # you can add more allowed origins here
+    # Change to frontend domain
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 def get_db():
@@ -103,7 +103,7 @@ def change_username(data: UserUpdate, db: Session = Depends(get_db), current_use
     db.refresh(current_user)
     return {"msg": "Profile updated"}
 
-@app.post("/me/change-password")
+@app.put("/me/change-password")
 def change_password(data: PassUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if not verify_password(data.old_password, current_user.hashed_password):
         raise HTTPException(status_code=400, detail="Old password incorrect")
@@ -241,5 +241,3 @@ def get_profile_picture(filename: str):
     if os.path.exists(file_path):
         return FileResponse(file_path)
     raise HTTPException(status_code=404, detail="Image not found")
-
-# CSS ON PROFILE UPLOAD, GAMIFY PROFILE PIC BORDER, FURTHER INCORPORATE THINGS IN PROFILE PAGE
