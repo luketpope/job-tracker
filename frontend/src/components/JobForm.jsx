@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const statusOptions = ['Pending', 'Interview', 'Rejected', 'Offer'];
 
 // XP values same as your job card
@@ -12,6 +14,7 @@ function getXP(status) {
 }
 
 export default function JobForm({ formData, onChange, onSubmit, isEditing = false, setFormData, totalXP, calculateLevel, calculateLeftoverXP, maxXP, jobs, originalStatus=null }) {
+  const [errors, setErrors] = useState({});
 
   const currentXP = getXP(formData.status);
   const oldXP = isEditing ? getXP(originalStatus) : 0;
@@ -20,9 +23,51 @@ export default function JobForm({ formData, onChange, onSubmit, isEditing = fals
   const leftoverXP = calculateLeftoverXP(newXP, level);
   const xpPercent = Math.min(100, (leftoverXP / maxXP) * 100);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    if (!formData.title || formData.title.trim().length < 2) {
+      newErrors.title = "Job title must be at least 2 characters";
+    }
+
+    if (!formData.company || formData.company.trim().length < 2) {
+      newErrors.company = "Company name must be at least 2 characters";
+    }
+
+    if (!formData.salary || formData.salary <= 0) {
+      newErrors.salary = "Salary must be greater than 0";
+    }
+
+    try {
+      new URL(formData.link);
+    } catch {
+      newErrors.link = "Must be a valid URL";
+    }
+
+    if (!statusOptions.includes(formData.status)) {
+      newErrors.status = "Please select a valid status";
+    }
+
+    if (!formData.date_applied) {
+      newErrors.date_applied = "Date applied is required";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      onSubmit(e);
+    }
+  };
+
+  const renderInputError = (field) =>
+    errors[field] ? (
+      <p className="text-red-500 text-sm mt-1 animate-fade-shake">{errors[field]}</p>
+    ) : null;
+  
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       className="max-w-md mx-auto bg-white dark:bg-gray-900 p-6 rounded-lg shadow-xl border-4 border-emerald-400 dark:border-emerald-600"
     >
       {/* XP and Level Display */}
@@ -58,6 +103,7 @@ export default function JobForm({ formData, onChange, onSubmit, isEditing = fals
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           placeholder="Enter job title"
         />
+        {renderInputError("title")}
       </label>
 
       <label className="block mb-4">
@@ -71,6 +117,7 @@ export default function JobForm({ formData, onChange, onSubmit, isEditing = fals
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           placeholder="Enter company name"
         />
+        {renderInputError("company")}
       </label>
 
       <label className="block mb-4">
@@ -85,6 +132,7 @@ export default function JobForm({ formData, onChange, onSubmit, isEditing = fals
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           placeholder="Enter salary"
         />
+        {renderInputError("salary")}
       </label>
 
       <label className="block mb-4">
@@ -98,6 +146,7 @@ export default function JobForm({ formData, onChange, onSubmit, isEditing = fals
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           placeholder="https://example.com/job-posting"
         />
+        {renderInputError("link")}
       </label>
 
       <label className="block mb-4">
@@ -114,6 +163,7 @@ export default function JobForm({ formData, onChange, onSubmit, isEditing = fals
             <option key={status} value={status}>{status}</option>
           ))}
         </select>
+        {renderInputError("status")}
       </label>
 
       <label className="block mb-6">
@@ -126,6 +176,7 @@ export default function JobForm({ formData, onChange, onSubmit, isEditing = fals
           required
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
         />
+        {renderInputError("date_applied")}
       </label>
 
       <button
