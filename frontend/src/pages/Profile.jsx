@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
-export default function Profile({ token, jobs, xp = 120, level = 5, maxXP = 200 }) {
+export default function Profile({ token, xp = 120, level = 5, maxXP = 200 }) {
   const [file, setFile] = useState(null);
   const [previewURL, setPreviewURL] = useState(null);
   const [profileURL, setProfileURL] = useState(null);
@@ -81,7 +81,7 @@ export default function Profile({ token, jobs, xp = 120, level = 5, maxXP = 200 
     }
 
     const response = await fetch("http://localhost:8000/me/change-password", {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
