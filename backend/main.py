@@ -162,7 +162,7 @@ def create_job(job: JobCreate, db: Session = Depends(get_db), current_user: User
     db.add(job_db)
     
     xp_gain = calculate_xp_for_status(job.status)
-    current_user.xp += xp_gain
+    current_user.xp = max(current_user.xp + xp_gain, 0) # Ensure XP cannot go negative
 
     db.commit()
     db.refresh(job_db)
@@ -184,7 +184,7 @@ def update_job(job_id: int, updated_job: Job, db: Session = Depends(get_db), cur
     old_xp = calculate_xp_for_status(job.status)
     new_xp = calculate_xp_for_status(updated_job.status)
     xp_gain = new_xp - old_xp
-    current_user.xp += xp_gain
+    current_user.xp = max(current_user.xp + xp_gain, 0) # Ensure XP cannot go negative
     
     for key, value in updated_job.__dict__.items():
         if key != "_sa_instance_state":
@@ -207,8 +207,7 @@ def delete_job(job_id: int, db: Session = Depends(get_db), current_user: User = 
         raise HTTPException(status_code=404, detail="Job not found")
     
     xp_loss = calculate_xp_for_status(job.status)
-    current_user.xp -= xp_loss
-    
+    current_user.xp = max(current_user.xp - xp_loss, 0) # Ensure XP cannot go negative
     db.delete(job)
     db.commit()
     return Response(status_code=204)
