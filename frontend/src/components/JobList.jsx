@@ -53,7 +53,7 @@ export default function JobList() {
 
     {jobs.length === 0 ? (
       <p className="text-center text-gray-600 dark:text-gray-400">
-        No jobs found.
+        No quests found. Please go to create job to begin tracking.
       </p>
     ) : (
       <div
