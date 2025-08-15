@@ -39,6 +39,9 @@ export default function UpdateJob({ jobs, totalXP, calculateLevel, calculateLeft
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Exclude id as it is not needed
+    const { id: _ignored, ...payload } = formData;
+
     const response = await fetch(`http://localhost:8000/jobs/${id}`, {
       method: 'PUT',
       headers: { 
