@@ -9,12 +9,12 @@ from pydantic import BaseModel
 from typing import List
 
 # JobModel is used to input information to database
-from datetime import date
+from datetime import datetime
 from sqlalchemy.orm import Session
 
 from models import Base, Job as JobModel, User
 from database import engine, SessionLocal
-from schemas import UserCreate, UserUpdate, PassUpdate
+from schemas import UserCreate, UserUpdate, PassUpdate, JobCreate, Job
 from auth import hash_password, verify_password
 from config import create_access_token, SECRET_KEY, ALGORITHM
 from jose import JWTError, jwt
@@ -44,18 +44,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-# Class to handle user input from frontend
-class JobCreate(BaseModel):
-    title: str
-    company: str
-    salary: float
-    link: str
-    status: str
-    date_applied: date
-
-class Job(JobCreate):
-    id: int
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -119,7 +107,7 @@ def change_password(data: PassUpdate, db: Session = Depends(get_db), current_use
 
 @app.get("/")
 def read_root(db: Session = Depends(get_db)):
-    return {"message": db.query(User).all()}
+    return {"message": db.query(JobModel).all()}
 
 @app.get("/jobs")
 def get_jobs(status: str = Query(None), company: str = Query(None), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -157,8 +145,11 @@ def create_job(job: JobCreate, db: Session = Depends(get_db), current_user: User
     # new_job = Job(id=next_id, **job_data.dict())
 
     # jobs_db.append(new_job)
-    
-    job_db = JobModel(**job.dict(), owner_id=current_user.id)
+    #     
+
+    job_data = job.dict()
+    job_data['link'] = str(job_data['link'])
+    job_db = JobModel(**job_data, owner_id=current_user.id)
     db.add(job_db)
     
     xp_gain = calculate_xp_for_status(job.status)
@@ -170,7 +161,7 @@ def create_job(job: JobCreate, db: Session = Depends(get_db), current_user: User
     return job_db
 
 @app.put("/jobs/{job_id}", response_model=Job)
-def update_job(job_id: int, updated_job: Job, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def update_job(job_id: int, updated_job: JobCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # for i, job in enumerate(jobs_db):
     #     if job.id == id:
     #         jobs_db[i] = updated_job
@@ -188,6 +179,8 @@ def update_job(job_id: int, updated_job: Job, db: Session = Depends(get_db), cur
     
     for key, value in updated_job.__dict__.items():
         if key != "_sa_instance_state":
+            if key == "link":
+                value = str(value)
             setattr(job, key, value)
     
     db.commit()

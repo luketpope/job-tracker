@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional
+from pydantic import BaseModel, Field, field_validator, HttpUrl
+from typing import Optional, Literal
 import re
+from datetime import date
 
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=20, description="Username must be 3-20 characters")
@@ -43,6 +44,20 @@ class PassUpdate(BaseModel):
 class UserOut(BaseModel):
     id: int
     username: str
+
+    class Config:
+        orm_mode = True
+
+class JobCreate(BaseModel):
+    title: str = Field(..., min_length=2)
+    company: str = Field(..., min_length=2)
+    salary: float = Field(..., gt=0)
+    link: HttpUrl
+    status: Literal['Pending', 'Interview', 'Rejected', 'Offer']
+    date_applied: date
+
+class Job(JobCreate):
+    id: int  # only for responses
 
     class Config:
         orm_mode = True
